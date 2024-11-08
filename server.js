@@ -71,8 +71,6 @@ app.post("/api/draw", (req, res) => {
 
   alreadyDrawed.push(drawerId);
   alreadySelected.push(drawnPerson.id);
-  console.log(alreadySelected);
-  console.log(alreadyDrawed);
   res.json({ name: drawnPerson.name });
 });
 
