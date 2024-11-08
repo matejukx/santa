@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secret Santa Draw</title>
+</head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #333;
+  }
+
+  .container {
+    text-align: center;
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 100%;
+  }
+
+  h1 {
+    color: #e63946;
+    margin-bottom: 1rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  label {
+    font-size: 1.1rem;
+    color: #555;
+  }
+
+  select, button {
+    padding: 0.6rem;
+    font-size: 1rem;
+    border: 2px solid #e63946;
+    border-radius: 5px;
+    outline: none;
+  }
+
+  select {
+    background-color: #f7f7f7;
+  }
+
+  button {
+    cursor: pointer;
+    color: #fff;
+    background-color: #e63946;
+    transition: background-color 0.3s;
+  }
+
+  button:hover {
+    background-color: #d62828;
+  }
+
+  /* Result Styling */
+  #result {
+    margin-top: 1.5rem;
+    font-size: 1.2rem;
+    color: #1d3557;
+  }
+</style>
+<body>
+  <h1>Secret Santa EKIPY</h1>
+  <form id="secretSantaForm">
+    <label for="drawerSelect">Kto losuje?</label>
+    <select id="drawerSelect" required>
+
+    </select>
+    <button type="submit">Losuj</button>
+  </form>
+  
+  <h2 id="result"></h2>
+
+  <script>
+    async function fetchParticipants() {
+      try {
+        const response = await fetch('/api/participants');
+        const participants = await response.json();
+
+        const drawerSelect = document.getElementById('drawerSelect');
+        participants.forEach(participant => {
+          const option = document.createElement('option');
+          option.value = participant.id;
+          option.textContent = participant.name;
+          drawerSelect.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error fetching participants:', error);
+      }
+    }
+
+    fetchParticipants();
+
+    document.getElementById('secretSantaForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const drawerId = document.getElementById('drawerSelect').value;
+      if (!drawerId) return alert("Please select who is drawing!");
+
+      try {
+        const response = await fetch(`/api/draw`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ drawerId })
+        });
+        
+        const result = await response.json();
+      
+        document.getElementById('result').textContent = `Wylosowałeś: ${result.name}`;
+      } catch (error) {
+        console.error('Error during draw:', error);
+        document.getElementById('result').textContent = 'An error occurred. Please try again.';
+      }
+    });
+  </script>
+</body>
+</html>
